@@ -1,0 +1,2 @@
+# API-only web mode: Python 3.10+ recommended.
+Flask>=3.0,<4

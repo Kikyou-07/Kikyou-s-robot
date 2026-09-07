@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <title>桔梗</title>
+  <link rel="icon" href="{{ url_for('static', filename='theme-icon.svg') }}" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ url_for('static', filename='chat.css', v=asset_version) }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='theme.css', v=asset_version) }}">
+  <script defer src="{{ url_for('static', filename='chat.js', v=asset_version) }}"></script>
+  <script defer src="{{ url_for('static', filename='provider.js', v=asset_version) }}"></script>
+  <script defer src="{{ url_for('static', filename='attachments.js', v=asset_version) }}"></script>
+  <script defer src="{{ url_for('static', filename='streaming.js', v=asset_version) }}"></script>
+  <script defer src="{{ url_for('static', filename='memory-ui.js', v=asset_version) }}"></script>
+</head>
+<body>
+  <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="m21 3-7 18-4-7-7-4 18-7ZM10 14 21 3"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14m-6-6 6 6 6-6"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+    <symbol id="i-sidebar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16M5.5 8h1M5.5 12h1"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 3 2.8 6.2L21 12l-6.2 2.8L12 21l-2.8-6.2L3 12l6.2-2.8Z"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="m14 5 5 5M4 20l1-6L16 3a2 2 0 0 1 3 0l2 2a2 2 0 0 1 0 3L10 19Z"/></symbol>
+    <symbol id="i-manage" viewBox="0 0 24 24"><rect x="3" y="4" width="6" height="6" rx="2"/><path d="M13 7h8M13 17h8m-18 0 2 2 4-4"/></symbol>
+    <symbol id="i-export" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3"/><circle cx="16" cy="17" r="3"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Zm0 0v6h6M8 13h8M8 17h5"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5M5 8a8 8 0 0 1 13-3l2 3M4 16l2 3a8 8 0 0 0 13-3"/></symbol>
+  </defs></svg>
+  <div class="app" id="app">
+    <aside class="side left" id="sessionPanel" aria-label="历史会话">
+      <div class="side-head">
+        <div class="brand-row"><div class="brand"><i class="brand-avatar" aria-hidden="true"></i><div class="brand-copy"><strong>桔梗</strong><span>与你的小日常</span></div></div><button class="icon-btn" id="batchToggle" title="批量管理" aria-label="批量管理会话" aria-pressed="false" onclick="toggleBatchMode()"><svg class="icon"><use href="#i-manage"/></svg></button></div>
+        <button class="new-session" onclick="newSession()"><svg class="icon"><use href="#i-plus"/></svg>新对话</button>
+        <label class="search-wrap"><svg class="icon"><use href="#i-search"/></svg><input id="sessionSearch" type="search" placeholder="搜索标题或聊天内容" aria-label="搜索历史会话" oninput="debounceSessions()"></label>
+        <div class="batch-toolbar" id="batchToolbar" hidden><div><span id="batchCount">已选 0 项</span><button onclick="selectAllSessions()" id="selectAllButton">全选结果</button></div><div><button onclick="exportSelectedSessions()" id="batchExport">导出</button><button class="danger" onclick="deleteSelectedSessions()" id="batchDelete">删除</button><button onclick="toggleBatchMode()">完成</button></div></div>
+      </div>
+      <nav class="session-list" id="sessions" aria-label="会话列表"><div class="empty small">正在读取会话…</div></nav>
+      <div class="side-foot">每次打开，都是新的开始</div>
+    </aside>
+    <main class="chat" id="chat">
+      <header class="top">
+        <div class="top-left"><button class="icon-btn" id="leftToggle" title="会话栏" aria-label="切换会话栏" aria-controls="sessionPanel" onclick="toggleSide('left')"><svg class="icon"><use href="#i-sidebar"/></svg></button><span class="top-avatar" aria-hidden="true"></span><div class="chat-heading"><span class="chat-eyebrow">正在与桔梗聊天</span><h1 id="chatTitle">新对话</h1></div></div>
+        <div class="top-actions"><button class="icon-btn" id="exportButton" title="导出当前会话" aria-label="导出当前会话" onclick="exportCurrent()"><svg class="icon"><use href="#i-export"/></svg></button><button class="icon-btn" id="settingsButton" title="设置" aria-label="打开设置" aria-haspopup="dialog" onclick="toggleSettings()"><svg class="icon"><use href="#i-settings"/></svg></button><button class="icon-btn" id="rightToggle" title="长期记忆" aria-label="切换长期记忆栏" aria-controls="memoryPanel" onclick="toggleSide('right')"><svg class="icon"><use href="#i-spark"/></svg></button></div>
+      </header>
+      <div class="messages" id="messages" tabindex="0" aria-label="聊天记录"><div class="message-list" id="messageList"></div></div>
+      <div class="composer-dock">
+        <button class="jump-latest" id="jumpLatest" hidden onclick="jumpToNewestMessage(true)"><svg class="icon"><use href="#i-down"/></svg><span id="jumpLabel">回到最新</span></button>
+        <form class="composer" id="composer" onsubmit="sendMessage(event)">
+          <input id="attachmentInput" type="file" multiple hidden accept="image/jpeg,image/png,image/webp,image/gif,image/bmp,.pdf,.txt,.md,.markdown,.csv,.tsv,.json,.yaml,.yml,.log,.docx,.xlsx,.pptx,.py,.js,.ts,.html,.css,.xml,.sql">
+          <button type="button" class="icon-btn composer-plus" id="quickMenuButton" title="更多工具" aria-label="打开更多工具" aria-haspopup="true" aria-expanded="false" onclick="toggleQuickMenu()"><svg class="icon"><use href="#i-plus"/></svg></button>
+          <section class="quick-menu" id="quickMenu" hidden aria-label="更多工具"><button type="button" onclick="chooseAttachments()"><svg class="icon"><use href="#i-plus"/></svg>添加图片或文件</button><button type="button" onclick="menuAction('summary')"><svg class="icon"><use href="#i-file"/></svg>查看会话摘要</button><button type="button" onclick="menuAction('reload-persona')"><svg class="icon"><use href="#i-refresh"/></svg>重新读取角色卡</button></section>
+          <div class="attachment-tray" id="attachmentTray" hidden aria-label="待发送附件"></div>
+          <textarea id="message" rows="1" aria-label="消息内容" aria-describedby="composerHint" placeholder="和桔梗说点什么…"></textarea>
+          <button class="send" id="send" title="发送（⌘ Enter）" aria-label="发送消息"><svg class="icon"><use href="#i-arrow"/></svg></button>
+        </form>
+        <div class="composer-hint" id="composerHint">⌘ Enter 发送 · Enter 换行</div>
+      </div>
+    </main>
+    <aside class="side right" id="memoryPanel" aria-label="长期记忆">
+      <div class="side-head"><div class="panel-head"><div><h2>她记得的事</h2><p>长期记忆</p></div><button class="icon-btn" title="收起长期记忆" aria-label="收起长期记忆" onclick="toggleSide('right')"><svg class="icon"><use href="#i-close"/></svg></button></div><label class="search-wrap"><svg class="icon"><use href="#i-search"/></svg><input id="memorySearch" type="search" placeholder="找一段记忆…" aria-label="搜索记忆" oninput="debounceMemories()"></label></div>
+      <div class="memory-scroll"><p id="careStatus" class="care-note"></p><p class="care-note">自动整理的记忆需你确认，才会用于以后聊天。</p><section id="memoryCandidates" aria-label="待确认记忆"></section><div id="memories"></div><details class="recall-section"><summary>检索调试</summary><label for="recallInput">看看一句话会唤起哪些记忆</label><div class="recall-form"><input id="recallInput" placeholder="输入一句问题"><button onclick="runRecall()" id="recallButton">测试</button></div><div id="recall"></div></details></div>
+    </aside>
+    <button class="side-scrim" id="sideScrim" hidden aria-label="关闭侧栏" onclick="closeMobileSides()"></button>
+  </div>
+  <section class="modal-shell settings-modal" id="settingsModal" hidden aria-hidden="true">
+    <div class="settings-dialog" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" tabindex="-1"><header class="dialog-header"><div><h2 id="settingsTitle">设置</h2><p>把聊天空间调成你喜欢的样子</p></div><button class="icon-btn" aria-label="关闭设置" onclick="toggleSettings(false)"><svg class="icon"><use href="#i-close"/></svg></button></header>
+      <div class="settings-scroll">
+        <section class="settings-card"><h3>API 用量</h3><p class="provider-state">查看每日 Token、聊天与后台请求，以及费用估算。</p><button class="quiet-button" onclick="openUsage()">查看 API 用量</button></section>
+        <section class="settings-card"><h3>聊天模型</h3><div class="choices"><button class="choice" id="providerLocal" onclick="switchProvider('local')">本地 Qwen</button><button class="choice" id="providerApi" onclick="switchProvider('api')">API</button></div><p class="provider-state" id="providerState">正在读取…</p><div class="setting-actions"><button onclick="openProviderDialog()">配置 API</button><button onclick="openGenerationDialog()">回复参数</button></div></section>
+        <section class="settings-card"><h3>角色卡</h3><div class="choices"><button class="choice" id="personaOriginal" data-persona="original" onclick="switchPersona('original')">原版桔梗</button><button class="choice" id="personaGentle" data-persona="gentle" onclick="switchPersona('gentle')">温柔可爱版</button><button class="choice" id="personaCatgirl" data-persona="catgirl" onclick="switchPersona('catgirl')">可爱猫娘版</button></div><p class="provider-state" id="personaState">正在读取…</p><button class="quiet-button" onclick="reloadActivePersona()">重新读取当前角色卡</button></section>
+        <section class="settings-card"><h3>银蓝 · 猫的日常</h3><div class="setting-label">显示模式</div><div class="choices"><button class="choice" data-mode="light" onclick="setMode('light')">日光浅色</button><button class="choice" data-mode="dark" onclick="setMode('dark')">夜雾深色</button></div><div class="setting-label">背景氛围</div><div class="choices"><button class="choice" data-wallpaper="art" onclick="setWallpaper('art')">角色插画</button><button class="choice" data-wallpaper="quiet" onclick="setWallpaper('quiet')">专注背景</button></div><div class="setting-label">来自这张图</div><div class="choices palette" id="macaronPalette"></div><div class="setting-label">更多点缀色</div><div class="choices palette" id="classicPalette"></div><p class="settings-footnote">原图仅保存在本机。外观与侧栏偏好自动保存在当前浏览器。</p></section>
+      </div>
+    </div>
+  </section>
+  <script defer src="{{ url_for('static', filename='usage.js', v=asset_version) }}"></script>
+  {% include 'usage.html' %}
+  {% include 'provider.html' %}
+  {% include 'generation.html' %}
+  <section class="modal-shell" id="infoModal" hidden aria-hidden="true"><div class="provider-dialog" role="dialog" aria-modal="true" aria-labelledby="infoTitle" tabindex="-1"><header class="dialog-header"><h2 id="infoTitle">会话摘要</h2><button class="icon-btn" aria-label="关闭" onclick="closeModal('infoModal')"><svg class="icon"><use href="#i-close"/></svg></button></header><div class="info-body" id="infoBody"></div></div></section>
+  <section class="modal-shell" id="memoryInputModal" hidden aria-hidden="true"><form class="provider-dialog" role="dialog" aria-modal="true" aria-labelledby="memoryInputTitle" tabindex="-1" onsubmit="event.preventDefault();finishMemoryInput(true)"><header class="dialog-header"><h2 id="memoryInputTitle">确认记忆</h2><button type="button" class="icon-btn" aria-label="关闭记忆窗口" onclick="finishMemoryInput(false)">×</button></header><p id="memoryInputNote" style="white-space:pre-wrap"></p><label id="memoryInputLabel" for="memoryInputText">记忆内容（最多 280 字）</label><textarea id="memoryInputText" maxlength="280" rows="5" style="width:100%;margin-top:8px;resize:vertical"></textarea><div class="provider-dialog-actions"><button type="button" onclick="finishMemoryInput(false)">取消</button><button type="submit" id="memoryInputSave">确认</button></div></form></section>
+  <div class="notice-stack" id="notices" role="status" aria-live="polite"></div>
+  <div class="sr-only" id="liveStatus" role="status" aria-live="polite"></div>
+</body>
+</html>
