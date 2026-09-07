@@ -1,0 +1,14 @@
+<section class="provider-modal" id="generationModal" hidden aria-hidden="true">
+  <div class="provider-dialog" role="dialog" aria-modal="true" aria-labelledby="generationDialogTitle">
+    <h2 id="generationDialogTitle">回复参数</h2>
+    <p>本地 Qwen 与 API 各自保存一套参数；切换来源后，桔梗会自动使用对应的一套。</p>
+    <label class="provider-field"><span>正在设置</span><select id="generationTarget" onchange="switchGenerationTarget()"><option value="local">本地 Qwen</option><option value="api">API</option></select></label>
+    <div class="provider-parameter-grid">
+      <label class="provider-field"><span>温度</span><input id="generationTemperature" type="number" min="0" max="1.5" step="0.05" inputmode="decimal"></label>
+      <label class="provider-field"><span>Top P</span><input id="generationTopP" type="number" min="0.01" max="1" step="0.01" inputmode="decimal"></label>
+      <label class="provider-field"><span>最大回复长度</span><input id="generationMaxTokens" type="number" min="64" max="4096" step="32" inputmode="numeric"><small>Token</small></label>
+    </div>
+    <div class="provider-parameter-note" id="generationHelp"></div>
+    <div class="provider-dialog-actions"><button type="button" onclick="closeGenerationDialog()">取消</button><button type="button" class="primary" id="saveGenerationButton" onclick="saveGeneration()">保存参数</button></div>
+  </div>
+</section>
