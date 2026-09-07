@@ -1,0 +1,6 @@
+-r requirements.txt
+
+# Optional: Apple Silicon local MLX model mode and semantic memory retrieval.
+mlx-lm>=0.20
+torch>=2.2
+transformers>=4.45
