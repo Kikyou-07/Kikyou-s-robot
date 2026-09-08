@@ -1,0 +1,30 @@
+# Private configuration and credentials
+provider_config.json
+persona_config.json
+.env
+*.key
+*.pem
+
+# User-owned chat data
+kikyou_memory*.db
+kikyou_memory*.db-*
+backups/
+attachments/
+exports/
+persona.txt
+personas/
+
+# Local models and caches
+models/
+.cache/
+__pycache__/
+*.py[cod]
+
+# Local-only artwork and editor files
+static/kikyou-theme.jpg
+.DS_Store
+
+# Development snapshots
+*.before-*
+*.backup*
+*.save
