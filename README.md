@@ -28,8 +28,8 @@ Kikyou Chat 可以连接任意 OpenAI 兼容 API；在 Apple Silicon Mac 上，�
 需要 Python 3.10 或更高版本。
 
 ```bash
-git clone https://github.com/YOUR-USER/kikyou-chat.git
-cd kikyou-chat
+git clone https://github.com/Kikyou-07/Kikyou-s-robot.git
+cd Kikyou-s-robot
 
 python -m venv .venv
 source .venv/bin/activate
